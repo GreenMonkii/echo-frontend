@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { BsFillMoonFill } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa";
 import { MdSunny } from "react-icons/md";
-import { RiChat1Fill2 } from "react-icons/ri";
+import { RiChat1Fill } from "react-icons/ri";
 import ChatListItem from "./chat-list-item";
+import { useSignalR } from "@/contexts/signalr.context";
 
 interface SidebarProps {
   chatItems: Conversation[];
@@ -14,6 +15,7 @@ interface SidebarProps {
 export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { currentGroup, setCurrentGroup } = useSignalR();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -32,6 +34,10 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const handleConversationClick = (conversationId: string) => {
+    setCurrentGroup(conversationId);
+  };
+
   return (
     <>
       {!isSidebarOpen && (
@@ -40,13 +46,13 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
           onClick={toggleSidebar}
           aria-label="Toggle Sidebar"
         >
-          <RiChat1Fill2 size={20} />
+          <RiChat1Fill size={20} />
         </button>
       )}
       <div
         className={`fixed inset-y-0 left-0 transform ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 transition-transform duration-300 ease-in-out w-64 md:w-1/4 bg-secondary shadow-lg p-4 md:p-6 rounded-r-lg z-40`}
+        } md:translate-x-0 transition-transform duration-300 ease-in-out w-64 md:w-1/3 lg:w-1/4 bg-secondary shadow-lg p-4 md:p-6 rounded-r-lg z-40`}
       >
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <button
@@ -54,7 +60,7 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
             onClick={onNewChatClick}
             aria-label="Start New Chat"
           >
-            <FaPlus className="mr-0 sm:mr-2" />
+            <FaPlus className="mr-0 md:mr-2" />
             <span className="hidden md:inline">Start a new chat</span>
           </button>
           <button
@@ -76,7 +82,12 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
             </li>
           ) : (
             chatItems.map((item, index) => (
-              <ChatListItem key={index} text={item.lastMessage} />
+              <ChatListItem
+                key={index}
+                text={item.lastMessage}
+                selected={currentGroup === item.id}
+                onClick={() => handleConversationClick(item.id)}
+              />
             ))
           )}
         </ul>

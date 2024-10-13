@@ -8,6 +8,7 @@ import { useSignalR } from "@/contexts/signalr.context";
 import { useConversationStore } from "@/store/conversation.store";
 import { Message } from "@/types/chat";
 import { Conversation } from "@/types/conversation";
+import { Payload } from "@/types/payload";
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -21,13 +22,13 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [connection, setConnection] = useState<HubConnection | null>(null);
-  const { conversations, addConversation, updateConversation } =
+  const { conversations, addConversation, updateConversation, reset } =
     useConversationStore();
   const { currentGroup, setCurrentGroup } = useSignalR();
 
   const initializeConnection = useCallback(() => {
     const newConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5207/chat")
+      .withUrl("/api/chat")
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Information)
       .build();
@@ -113,6 +114,43 @@ export default function Chat() {
     updateConversation,
   ]);
 
+  useEffect(() => {
+    if (currentGroup) {
+      setMessages([]);
+      connection?.invoke("GetGroupMessages", currentGroup).catch((error) => {
+        toast.error("Failed to get group messages", {
+          id: "chat-get-failed",
+        });
+        console.error(error);
+      });
+      connection?.on("GroupMessages", (payload: Payload[]) => {
+        console.log(
+          payload?.[0].Message,
+          payload?.[0].User,
+          payload?.[0].SentAt
+        );
+        const messages = payload.map((msg) => ({
+          content: msg.Message,
+          isUser: msg.User === connection?.connectionId,
+          sentAt: new Date(msg.SentAt),
+        }));
+        setMessages(messages);
+      });
+    }
+  }, [currentGroup, connection]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      reset();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [reset]);
+
   const sendMessage = () => {
     if (
       connection &&
@@ -151,19 +189,12 @@ export default function Chat() {
 
   const createGroup = (group: string, passcode: string) => {
     if (connection && connection.state === "Connected") {
-      connection
-        .send("CreateGroup", group, passcode)
-        .then(() => {
-          toast.success(`Created group ${group}`, {
-            id: "chat-create-success",
-          });
-        })
-        .catch((error) => {
-          toast.error("Failed to create group", {
-            id: "chat-create-failed",
-          });
-          console.error(error);
+      connection.send("CreateGroup", group, passcode).catch((error) => {
+        toast.error("Failed to create group", {
+          id: "chat-create-failed",
         });
+        console.error(error);
+      });
     } else {
       toast.error("Connection to the chat hub is not established", {
         id: "chat-connection-lost",
@@ -177,9 +208,6 @@ export default function Chat() {
         .send("AddToGroup", group, passcode)
         .then(() => {
           setCurrentGroup(group);
-          toast.success(`Joined group ${group}`, {
-            id: "chat-join-success",
-          });
         })
         .catch((error) => {
           toast.error("Failed to join group", {
@@ -195,13 +223,13 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex flex-col md:flex-row h-screen bg-background">
       <Sidebar
         onNewChatClick={() => setIsModalOpen(true)}
         chatItems={conversations}
       />
-      <div className="flex-1 flex flex-col items-end">
-        <div className="h-3/4 w-full max-w-4xl p-4">
+      <div className="flex-1 flex flex-col items-end md:ml-72">
+        <div className="flex-1 w-full max-w-4xl p-4">
           <ChatArea messages={messages} currentGroup={currentGroup} />
         </div>
         <div className="w-full max-w-4xl p-4">

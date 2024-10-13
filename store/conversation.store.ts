@@ -6,6 +6,7 @@ type ConversationStoreProps = {
   conversations: Conversation[];
   addConversation: (conversation: Conversation) => void;
   updateConversation: (conversation: Conversation) => void;
+  reset: () => void;
 };
 
 export const useConversationStore = create(
@@ -22,6 +23,7 @@ export const useConversationStore = create(
             conv.id === conversation.id ? conversation : conv
           ),
         })),
+      reset: () => set({ conversations: [] }),
     }),
     {
       name: "conversation-store",

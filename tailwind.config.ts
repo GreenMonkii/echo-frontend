@@ -12,6 +12,7 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         primary: "var(--primary)",
+        "muted-primary": "var(--muted-primary)",
         secondary: "var(--secondary)",
         accent: "var(--accent)",
         muted: "var(--muted)",
