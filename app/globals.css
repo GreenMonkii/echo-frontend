@@ -3,21 +3,50 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: #f6f6f6;
   --foreground: #171717;
+  --primary: #28a08c;
+  --secondary: #ffffff;
+  --accent: #a4c7be;
+  --muted: #c2c2c2;
+  --muted-text: #555555;
+  --input-background: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #171717;
+  --foreground: #f6f6f6;
+  --primary: #28a08c;
+  --secondary: #2c2c2c;
+  --accent: #4a7a72;
+  --muted: #555555;
+  --muted-text: #c2c2c2;
+  --input-background: #2c2c2c;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+input {
+  background-color: var(--input-background);
+  color: var(--foreground);
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.custom-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @layer utilities {

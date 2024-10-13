@@ -1,101 +1,224 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import ChatArea from "@/components/chat-area";
+import MessageInput from "@/components/message-input";
+import NewChatModal from "@/components/new-chat-modal";
+import Sidebar from "@/components/sidebar";
+import { useSignalR } from "@/contexts/signalr.context";
+import { useConversationStore } from "@/store/conversation.store";
+import { Message } from "@/types/chat";
+import { Conversation } from "@/types/conversation";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel,
+} from "@microsoft/signalr";
+import { useEffect, useState, useCallback } from "react";
+import toast from "react-hot-toast";
+
+export default function Chat() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [connection, setConnection] = useState<HubConnection | null>(null);
+  const { conversations, addConversation, updateConversation } =
+    useConversationStore();
+  const { currentGroup, setCurrentGroup } = useSignalR();
+
+  const initializeConnection = useCallback(() => {
+    const newConnection = new HubConnectionBuilder()
+      .withUrl("http://localhost:5207/chat")
+      .withAutomaticReconnect()
+      .configureLogging(LogLevel.Information)
+      .build();
+
+    newConnection
+      .start()
+      .then(() => {
+        console.log("Connection started");
+        setConnection(newConnection);
+        toast.success("Connected to the chat hub", {
+          id: "chat-connection-success",
+        });
+        console.log("Connected to the chat hub");
+      })
+      .catch((error) => {
+        toast.error("Failed to connect to the chat hub", {
+          id: "chat-connection-failed",
+        });
+        console.error(error);
+      });
+
+    return newConnection;
+  }, []);
+
+  useEffect(() => {
+    const newConnection = initializeConnection();
+    return () => {
+      newConnection
+        .stop()
+        .catch((error) => console.error("Error stopping connection:", error));
+    };
+  }, [initializeConnection]);
+
+  useEffect(() => {
+    if (!connection) return;
+
+    const handleReceiveMessage = (
+      user: string,
+      content: string,
+      sentAt: string
+    ) => {
+      const message: Message = {
+        isUser: user === connection.connectionId,
+        content,
+        sentAt: new Date(sentAt),
+      };
+      setMessages((prevMessages) => [...prevMessages, message]);
+      if (currentGroup) {
+        const conversation: Conversation = {
+          id: currentGroup,
+          lastMessage: content,
+        };
+        if (!conversations.find((conv) => conv.id === currentGroup)) {
+          addConversation(conversation);
+        } else {
+          updateConversation({ ...conversation, lastMessage: content });
+        }
+      }
+    };
+
+    const handleNotification = (message: string) => {
+      toast(message, { id: "chat-notification" });
+    };
+
+    const handleError = (message: string) => {
+      toast.error(message, { id: "chat-error" });
+    };
+
+    connection.on("ReceiveMessage", handleReceiveMessage);
+    connection.on("Notification", handleNotification);
+    connection.on("Error", handleError);
+
+    return () => {
+      connection.off("ReceiveMessage", handleReceiveMessage);
+      connection.off("Notification", handleNotification);
+      connection.off("Error", handleError);
+    };
+  }, [
+    connection,
+    currentGroup,
+    conversations,
+    addConversation,
+    updateConversation,
+  ]);
+
+  const sendMessage = () => {
+    if (
+      connection &&
+      connection.state === "Connected" &&
+      input.trim() !== "" &&
+      currentGroup
+    ) {
+      connection
+        .send("SendMessageToGroup", currentGroup, input)
+        .then(() => {
+          const conversation: Conversation = {
+            id: currentGroup!,
+            lastMessage: input,
+          };
+          if (!conversations.find((conv) => conv.id === currentGroup)) {
+            addConversation(conversation);
+          } else {
+            updateConversation({ ...conversation, lastMessage: input });
+          }
+        })
+        .catch((error) => {
+          toast.error("Failed to send message", {
+            id: "chat-send-failed",
+          });
+          console.error(error);
+        });
+      setInput("");
+    } else if (input.trim() === "") {
+      toast.error("Cannot send an empty message");
+    } else {
+      toast.error("Connection to the chat hub is not established", {
+        id: "chat-connection-lost",
+      });
+    }
+  };
+
+  const createGroup = (group: string, passcode: string) => {
+    if (connection && connection.state === "Connected") {
+      connection
+        .send("CreateGroup", group, passcode)
+        .then(() => {
+          toast.success(`Created group ${group}`, {
+            id: "chat-create-success",
+          });
+        })
+        .catch((error) => {
+          toast.error("Failed to create group", {
+            id: "chat-create-failed",
+          });
+          console.error(error);
+        });
+    } else {
+      toast.error("Connection to the chat hub is not established", {
+        id: "chat-connection-lost",
+      });
+    }
+  };
+
+  const joinGroup = (group: string, passcode: string) => {
+    if (connection && connection.state === "Connected") {
+      connection
+        .send("AddToGroup", group, passcode)
+        .then(() => {
+          setCurrentGroup(group);
+          toast.success(`Joined group ${group}`, {
+            id: "chat-join-success",
+          });
+        })
+        .catch((error) => {
+          toast.error("Failed to join group", {
+            id: "chat-join-failed",
+          });
+          console.error(error);
+        });
+    } else {
+      toast.error("Connection to the chat hub is not established", {
+        id: "chat-connection-lost",
+      });
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="flex h-screen bg-background">
+      <Sidebar
+        onNewChatClick={() => setIsModalOpen(true)}
+        chatItems={conversations}
+      />
+      <div className="flex-1 flex flex-col items-end">
+        <div className="h-3/4 w-full max-w-4xl p-4">
+          <ChatArea messages={messages} currentGroup={currentGroup} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <div className="w-full max-w-4xl p-4">
+          <MessageInput
+            input={input}
+            setInput={setInput}
+            sendMessage={sendMessage}
+            currentGroup={currentGroup}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      </div>
+      <NewChatModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        joinGroup={joinGroup}
+        createGroup={createGroup}
+      />
     </div>
   );
 }
