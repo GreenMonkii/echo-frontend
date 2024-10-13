@@ -42,7 +42,7 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
     <>
       {!isSidebarOpen && (
         <button
-          className="md:hidden bg-primary text-secondary p-3 rounded-full shadow-lg fixed top-4 left-4 z-50"
+          className="md:hidden bg-primary text-secondary p-3 rounded-full shadow-lg fixed top-4 left-4 z-50 transition-transform duration-300 ease-in-out"
           onClick={toggleSidebar}
           aria-label="Toggle Sidebar"
         >
@@ -56,7 +56,7 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
       >
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <button
-            className="bg-primary text-secondary px-3 py-2 md:px-4 md:py-2 rounded-lg shadow-md hover:bg-accent flex items-center justify-center"
+            className="bg-primary text-secondary px-3 py-2 md:px-4 md:py-2 rounded-lg shadow-md hover:bg-accent flex items-center justify-center transition-colors duration-300 ease-in-out"
             onClick={onNewChatClick}
             aria-label="Start New Chat"
           >
@@ -64,7 +64,7 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
             <span className="hidden md:inline">Start a new chat</span>
           </button>
           <button
-            className="bg-primary text-secondary px-2 py-2 md:px-3 md:py-2 rounded-lg shadow-md hover:bg-accent flex items-center"
+            className="bg-primary text-secondary px-2 py-2 md:px-3 md:py-2 rounded-lg shadow-md hover:bg-accent flex items-center transition-colors duration-300 ease-in-out"
             onClick={toggleDarkMode}
             aria-label="Toggle Dark Mode"
           >

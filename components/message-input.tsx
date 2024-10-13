@@ -24,7 +24,7 @@ export default function MessageInput({
         placeholder="Type your message..."
       />
       <button
-        className={`bg-primary text-secondary px-6 py-3 rounded-lg shadow-md hover:bg-accent w-full md:w-auto ${
+        className={`bg-primary text-secondary px-6 py-3 rounded-lg shadow-md hover:bg-accent w-full md:w-auto transition-colors duration-300 ease-in-out ${
           input.trim() === "" ? "opacity-50 cursor-not-allowed" : ""
         }`}
         onClick={sendMessage}
