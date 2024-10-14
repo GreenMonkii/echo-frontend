@@ -38,6 +38,11 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
     setCurrentGroup(conversationId);
   };
 
+  const handleNewChatClick = () => {
+    onNewChatClick();
+    setIsSidebarOpen(false);
+  };
+
   return (
     <>
       {!isSidebarOpen && (
@@ -57,7 +62,7 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <button
             className="bg-primary text-secondary px-3 py-2 md:px-4 md:py-2 rounded-lg shadow-md hover:bg-accent flex items-center justify-center transition-colors duration-300 ease-in-out"
-            onClick={onNewChatClick}
+            onClick={handleNewChatClick}
             aria-label="Start New Chat"
           >
             <FaPlus className="mr-0 md:mr-2" />
