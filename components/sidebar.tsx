@@ -6,6 +6,7 @@ import { MdSunny } from "react-icons/md";
 import { RiChat1Fill } from "react-icons/ri";
 import ChatListItem from "./chat-list-item";
 import { useSignalR } from "@/contexts/signalr.context";
+import { useThemeStore } from "@/store/theme.store";
 
 interface SidebarProps {
   chatItems: Conversation[];
@@ -13,22 +14,18 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { currentGroup, setCurrentGroup } = useSignalR();
+  const { theme, toggleTheme } = useThemeStore();
 
   useEffect(() => {
     const root = document.documentElement;
-    if (isDarkMode) {
+    if (theme === "dark") {
       root.classList.add("dark");
     } else {
       root.classList.remove("dark");
     }
-  }, [isDarkMode]);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  }, [theme]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -70,10 +67,10 @@ export default function Sidebar({ chatItems, onNewChatClick }: SidebarProps) {
           </button>
           <button
             className="bg-primary text-secondary px-2 py-2 md:px-3 md:py-2 rounded-lg shadow-md hover:bg-accent flex items-center transition-colors duration-300 ease-in-out"
-            onClick={toggleDarkMode}
-            aria-label="Toggle Dark Mode"
+            onClick={toggleTheme}
+            aria-label="Toggle Theme"
           >
-            {isDarkMode ? (
+            {theme === "dark" ? (
               <MdSunny className="text-secondary" size={20} />
             ) : (
               <BsFillMoonFill className="text-secondary" size={20} />

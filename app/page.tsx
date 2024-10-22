@@ -8,7 +8,6 @@ import { useSignalR } from "@/contexts/signalr.context";
 import { useConversationStore } from "@/store/conversation.store";
 import { Message } from "@/types/chat";
 import { Conversation } from "@/types/conversation";
-import { Payload } from "@/types/payload";
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -115,31 +114,6 @@ export default function Chat() {
   ]);
 
   useEffect(() => {
-    if (currentGroup) {
-      setMessages([]);
-      connection?.invoke("GetGroupMessages", currentGroup).catch((error) => {
-        toast.error("Failed to get group messages", {
-          id: "chat-get-failed",
-        });
-        console.error(error);
-      });
-      connection?.on("GroupMessages", (payload: Payload[]) => {
-        console.log(
-          payload?.[0].Message,
-          payload?.[0].User,
-          payload?.[0].SentAt
-        );
-        const messages = payload.map((msg) => ({
-          content: msg.Message,
-          isUser: msg.User === connection?.connectionId,
-          sentAt: new Date(msg.SentAt),
-        }));
-        setMessages(messages);
-      });
-    }
-  }, [currentGroup, connection]);
-
-  useEffect(() => {
     const handleBeforeUnload = () => {
       reset();
     };
@@ -150,6 +124,17 @@ export default function Chat() {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [reset]);
+
+  useEffect(() => {
+    setMessages([]);
+  }, [currentGroup]);
+
+  useEffect(() => {
+    if (connection) {
+      setMessages([]);
+      reset();
+    }
+  }, [connection, reset]);
 
   const sendMessage = () => {
     if (
@@ -166,7 +151,7 @@ export default function Chat() {
             lastMessage: input,
           };
           if (!conversations.find((conv) => conv.id === currentGroup)) {
-            addConversation(conversation);
+            return;
           } else {
             updateConversation({ ...conversation, lastMessage: input });
           }
