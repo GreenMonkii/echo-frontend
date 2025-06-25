@@ -14,13 +14,13 @@ export default function MessageInput({
   sendMessage,
 }: MessageInputProps) {
   return (
-    <div className="border-t border-border bg-white/80 backdrop-blur-sm p-6">
+    <div className="border-t border-border bg-secondary/80 backdrop-blur-sm p-6">
       <div className="max-w-4xl mx-auto flex items-center gap-4">
         <div className="flex-1 relative">
           <input
             name="message"
             type="text"
-            className="w-full px-6 py-4 bg-white border-2 border-border hover:border-primary/30 focus:border-primary rounded-2xl focus:outline-none text-foreground placeholder:text-muted-foreground font-medium transition-all duration-200 pr-12"
+            className="w-full p-4 bg-input border-2 border-border hover:border-primary/30 focus:border-primary rounded-full focus:outline-none text-foreground text-sm md:text-base placeholder:text-muted-foreground font-medium transition-all duration-200 pr-12"
             value={input}
             autoComplete="off"
             onChange={(e) => setInput(e.target.value)}
@@ -34,16 +34,16 @@ export default function MessageInput({
           />
         </div>
         <button
-          className={`p-4 rounded-2xl transition-all duration-200 font-semibold ${
+          className={`p-4 rounded-full transition-all duration-200 font-semibold ${
             input.trim() === "" || !currentGroup
               ? "bg-muted text-muted-foreground cursor-not-allowed"
-              : "gradient-primary text-white hover:shadow-lg hover:scale-105 active:scale-95"
+              : "bg-primary text-white hover:bg-primary-hover hover:scale-105 active:scale-95"
           }`}
           onClick={sendMessage}
           disabled={input.trim() === "" || !currentGroup}
           aria-label="Send message"
         >
-          <Send size={20} />
+          <Send size={20} fill="currentColor" />
         </button>
       </div>
     </div>

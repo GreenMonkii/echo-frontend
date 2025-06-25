@@ -213,14 +213,18 @@ export default function Chat() {
         onNewChatClick={() => setIsModalOpen(true)}
         chatItems={conversations}
       />
-      <div className="flex-1 flex flex-col md:ml-80">
-        <ChatArea messages={messages} currentGroup={currentGroup} />
-        <MessageInput
-          input={input}
-          setInput={setInput}
-          sendMessage={sendMessage}
-          currentGroup={currentGroup}
-        />
+      <div className="flex-1 flex flex-col md:ml-80 relative">
+        <div className="flex-1 overflow-hidden">
+          <ChatArea messages={messages} currentGroup={currentGroup} />
+        </div>
+        <div className="fixed bottom-0 left-0 right-0 md:left-80 z-10">
+          <MessageInput
+            input={input}
+            setInput={setInput}
+            sendMessage={sendMessage}
+            currentGroup={currentGroup}
+          />
+        </div>
       </div>
       <NewChatModal
         isOpen={isModalOpen}

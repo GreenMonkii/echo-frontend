@@ -15,15 +15,13 @@ export default function ChatListItem({
     <div
       onClick={onClick}
       className={`group flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all duration-200 ${
-        selected
-          ? "bg-primary text-white shadow-lg shadow-primary/20"
-          : "hover:bg-primary/5 hover:shadow-sm"
+        selected ? "bg-primary text-white" : "hover:bg-primary/5"
       }`}
     >
       <div
         className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
           selected
-            ? "bg-white/20 text-white"
+            ? "bg-secondary/20 text-white"
             : "bg-primary/10 text-primary group-hover:bg-primary/15"
         }`}
       >

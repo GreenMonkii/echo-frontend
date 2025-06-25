@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "react-hot-toast";
 import { SignalRProvider } from "@/contexts/signalr.context";
+import type { Metadata } from "next";
+import { Host_Grotesk } from "next/font/google";
+import { Toaster } from "react-hot-toast";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Echo - Anonymous Chat",
   description: "A simple anonymous chat application",
 };
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const primaryFont = Host_Grotesk({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-space-grotesk",
 });
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${plusJakartaSans.variable} font-sans antialiased`}>
+      <body className={`${primaryFont.className} antialiased`}>
         <SignalRProvider>{children}</SignalRProvider>
         <Toaster
           position="top-right"

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Copy, RefreshCw, Eye, EyeOff, X } from "lucide-react";
 import { generateRandomCode } from "@/lib/utils";
+import { Check, Copy, Eye, EyeOff, RefreshCw, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface NewChatModalProps {
   isOpen: boolean;
@@ -15,16 +15,20 @@ export default function NewChatModal({
   joinGroup,
   createGroup,
 }: NewChatModalProps) {
-  const [copySuccess, setCopySuccess] = useState("");
+  const [isCopied, setIsCopied] = useState(false);
   const [chatCode, setChatCode] = useState<string | null>(null);
-  const [joinCode, setJoinCode] = useState("");
-  const [createPasscode, setCreatePasscode] = useState("");
-  const [joinPasscode, setJoinPasscode] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
-  const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState("");
-  const [showCreatePasscode, setShowCreatePasscode] = useState(false);
-  const [showJoinPasscode, setShowJoinPasscode] = useState(false);
+  const [createState, setCreateState] = useState({
+    passcode: "",
+    showPasscode: false,
+    loading: false,
+  });
+  const [joinState, setJoinState] = useState({
+    code: "",
+    passcode: "",
+    showPasscode: false,
+    loading: false,
+  });
 
   useEffect(() => {
     setChatCode(generateRandomCode(6));
@@ -35,24 +39,28 @@ export default function NewChatModal({
   const copyToClipboard = () => {
     navigator.clipboard.writeText(chatCode).then(
       () => {
-        setCopySuccess("Copied!");
-        setTimeout(() => setCopySuccess(""), 2000);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
       },
       () => {
-        setCopySuccess("Failed to copy!");
+        // Could add error handling here if needed
       }
     );
   };
 
   const regenerateCode = () => {
     setChatCode(generateRandomCode(6));
-    setCopySuccess("");
+    setIsCopied(false);
   };
 
   const clearFields = () => {
-    setJoinCode("");
-    setCreatePasscode("");
-    setJoinPasscode("");
+    setJoinState({
+      code: "",
+      passcode: "",
+      showPasscode: false,
+      loading: false,
+    });
+    setCreateState({ passcode: "", showPasscode: false, loading: false });
     setError("");
   };
 
@@ -66,11 +74,11 @@ export default function NewChatModal({
   };
 
   const joinChat = () => {
-    if (!validatePasscode(joinPasscode)) return;
+    if (!validatePasscode(joinState.passcode)) return;
 
-    setIsJoining(true);
-    joinGroup(joinCode, joinPasscode);
-    setIsJoining(false);
+    setJoinState((prev) => ({ ...prev, loading: true }));
+    joinGroup(joinState.code, joinState.passcode);
+    setJoinState((prev) => ({ ...prev, loading: false }));
     clearFields();
     onClose();
   };
@@ -81,12 +89,12 @@ export default function NewChatModal({
   };
 
   const joinCreatedChat = () => {
-    if (!validatePasscode(createPasscode)) return;
+    if (!validatePasscode(createState.passcode)) return;
 
-    setIsCreating(true);
-    createGroup(chatCode, createPasscode);
-    joinGroup(chatCode, createPasscode);
-    setIsCreating(false);
+    setCreateState((prev) => ({ ...prev, loading: true }));
+    createGroup(chatCode, createState.passcode);
+    joinGroup(chatCode, createState.passcode);
+    setCreateState((prev) => ({ ...prev, loading: false }));
     clearFields();
     onClose();
   };
@@ -120,7 +128,7 @@ export default function NewChatModal({
             </label>
             <div className="flex gap-2">
               <div
-                className="flex-1 px-3 py-2 bg-muted border border-border rounded-lg text-foreground font-mono cursor-pointer hover:bg-muted/80 transition-colors duration-200"
+                className="flex-1 px-3 py-2 border border-border rounded-lg text-foreground cursor-pointer hover:bg-muted/80 transition-colors duration-200"
                 onClick={copyToClipboard}
               >
                 {chatCode}
@@ -130,7 +138,7 @@ export default function NewChatModal({
                 onClick={copyToClipboard}
                 aria-label="Copy Chat Code"
               >
-                <Copy size={16} />
+                {isCopied ? <Check size={16} /> : <Copy size={16} />}
               </button>
               <button
                 className="px-3 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors duration-200 flex items-center gap-1"
@@ -140,9 +148,6 @@ export default function NewChatModal({
                 <RefreshCw size={16} />
               </button>
             </div>
-            {copySuccess && (
-              <p className="text-xs text-primary mt-1">{copySuccess}</p>
-            )}
           </div>
 
           <div>
@@ -151,19 +156,33 @@ export default function NewChatModal({
             </label>
             <div className="relative">
               <input
-                type={showCreatePasscode ? "text" : "password"}
-                className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder:text-muted-foreground"
+                type={createState.showPasscode ? "text" : "password"}
+                className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground"
                 placeholder="Enter a secure passcode"
-                value={createPasscode}
-                onChange={(e) => setCreatePasscode(e.target.value)}
+                value={createState.passcode}
+                onChange={(e) =>
+                  setCreateState((prev) => ({
+                    ...prev,
+                    passcode: e.target.value,
+                  }))
+                }
                 autoComplete="off"
               />
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 px-3 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
-                onClick={() => setShowCreatePasscode(!showCreatePasscode)}
+                onClick={() =>
+                  setCreateState((prev) => ({
+                    ...prev,
+                    showPasscode: !prev.showPasscode,
+                  }))
+                }
               >
-                {showCreatePasscode ? <EyeOff size={18} /> : <Eye size={18} />}
+                {createState.showPasscode ? (
+                  <EyeOff size={18} />
+                ) : (
+                  <Eye size={18} />
+                )}
               </button>
             </div>
           </div>
@@ -171,9 +190,9 @@ export default function NewChatModal({
           <button
             className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 rounded-lg transition-colors duration-200 font-medium"
             onClick={joinCreatedChat}
-            disabled={!createPasscode || isCreating}
+            disabled={!createState.passcode || createState.loading}
           >
-            {isCreating ? "Creating..." : "Create & Join Chat"}
+            {createState.loading ? "Creating..." : "Create & Join Chat"}
           </button>
         </div>
 
@@ -194,10 +213,12 @@ export default function NewChatModal({
               </label>
               <input
                 type="text"
-                className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder:text-muted-foreground"
+                className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground"
                 placeholder="Enter chat code"
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value)}
+                value={joinState.code}
+                onChange={(e) =>
+                  setJoinState((prev) => ({ ...prev, code: e.target.value }))
+                }
                 autoComplete="off"
               />
             </div>
@@ -208,19 +229,33 @@ export default function NewChatModal({
               </label>
               <div className="relative">
                 <input
-                  type={showJoinPasscode ? "text" : "password"}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder:text-muted-foreground"
+                  type={joinState.showPasscode ? "text" : "password"}
+                  className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground"
                   placeholder="Enter passcode"
-                  value={joinPasscode}
-                  onChange={(e) => setJoinPasscode(e.target.value)}
+                  value={joinState.passcode}
+                  onChange={(e) =>
+                    setJoinState((prev) => ({
+                      ...prev,
+                      passcode: e.target.value,
+                    }))
+                  }
                   autoComplete="off"
                 />
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 px-3 flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
-                  onClick={() => setShowJoinPasscode(!showJoinPasscode)}
+                  onClick={() =>
+                    setJoinState((prev) => ({
+                      ...prev,
+                      showPasscode: !prev.showPasscode,
+                    }))
+                  }
                 >
-                  {showJoinPasscode ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {joinState.showPasscode ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
                 </button>
               </div>
             </div>
@@ -230,9 +265,11 @@ export default function NewChatModal({
             <button
               className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 rounded-lg transition-colors duration-200 font-medium"
               onClick={joinChat}
-              disabled={!joinCode || !joinPasscode || isJoining}
+              disabled={
+                !joinState.code || !joinState.passcode || joinState.loading
+              }
             >
-              {isJoining ? "Joining..." : "Join Chat"}
+              {joinState.loading ? "Joining..." : "Join Chat"}
             </button>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { Message } from "@/types/chat";
-import { MessageCircle, Users } from "lucide-react";
+import { Glasses, MessageCircle } from "lucide-react";
 
 interface ChatAreaProps {
   messages: Message[];
@@ -8,17 +8,17 @@ interface ChatAreaProps {
 
 export default function ChatArea({ messages, currentGroup }: ChatAreaProps) {
   return (
-    <div className="flex flex-1 flex-col h-full bg-gradient-to-br from-background to-muted/30">
+    <div className="flex flex-1 flex-col h-full pb-24">
       {!currentGroup ? (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center max-w-md">
             <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <Users size={40} className="text-primary" />
+              <Glasses size={40} className="text-primary stroke-[1.5]" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-3">
+            <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3">
               Welcome to Echo
             </h2>
-            <p className="text-muted-foreground text-lg leading-relaxed">
+            <p className="text-muted-foreground md:text-lg leading-relaxed">
               Connect with others anonymously. Create or join a group to start
               your conversation.
             </p>
@@ -34,7 +34,7 @@ export default function ChatArea({ messages, currentGroup }: ChatAreaProps) {
               Ready to chat!
             </h3>
             <p className="text-muted-foreground">
-              You're connected to the group. Send your first message to get the
+              You&apos;re connected to the group. Send your first message to get the
               conversation started.
             </p>
           </div>
@@ -50,10 +50,10 @@ export default function ChatArea({ messages, currentGroup }: ChatAreaProps) {
                 }`}
               >
                 <div
-                  className={`max-w-md lg:max-w-lg px-6 py-4 rounded-2xl shadow-sm ${
+                  className={`max-w-md lg:max-w-lg px-6 py-4 rounded-2xl ${
                     msg.isUser
                       ? "bg-primary text-white ml-12"
-                      : "bg-white border border-border text-foreground mr-12"
+                      : "bg-secondary border border-border text-foreground mr-12"
                   }`}
                 >
                   <p className="text-sm leading-relaxed font-medium">
