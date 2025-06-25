@@ -1,6 +1,6 @@
 "use client";
 
-import { FaHome } from "react-icons/fa";
+import { Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ErrorPage() {
@@ -12,15 +12,19 @@ export default function ErrorPage() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background text-foreground">
-      <h1 className="text-4xl font-bold mb-4">Something went wrong</h1>
-      <p className="text-xl mb-8">An unexpected error has occurred.</p>
-      <button
-        className="bg-primary text-secondary px-6 py-3 rounded-lg shadow-md hover:bg-accent flex items-center transition-colors duration-300 ease-in-out"
-        onClick={goHome}
-      >
-        <FaHome className="mr-2" />
-        Go Home
-      </button>
+      <div className="text-center max-w-md">
+        <h1 className="text-4xl font-bold mb-4">Something went wrong</h1>
+        <p className="text-muted-foreground mb-8">
+          An unexpected error has occurred.
+        </p>
+        <button
+          className="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition-colors duration-200 font-medium"
+          onClick={goHome}
+        >
+          <Home size={18} />
+          Go Home
+        </button>
+      </div>
     </div>
   );
 }

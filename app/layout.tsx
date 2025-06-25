@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { SignalRProvider } from "@/contexts/signalr.context";
@@ -9,7 +9,10 @@ export const metadata: Metadata = {
   description: "A simple anonymous chat application",
 };
 
-const space_grotesk = Space_Grotesk({ subsets: ["latin"] });
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+});
 
 export default function RootLayout({
   children,
@@ -18,9 +21,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${space_grotesk.className} antialiased`}>
+      <body className={`${plusJakartaSans.variable} font-sans antialiased`}>
         <SignalRProvider>{children}</SignalRProvider>
-        <Toaster />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "var(--secondary)",
+              color: "var(--foreground)",
+              border: "1px solid var(--border)",
+            },
+          }}
+        />
       </body>
     </html>
   );

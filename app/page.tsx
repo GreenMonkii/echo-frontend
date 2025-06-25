@@ -13,7 +13,7 @@ import {
   HubConnectionBuilder,
   LogLevel,
 } from "@microsoft/signalr";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Chat() {
@@ -208,23 +208,19 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-background">
+    <div className="flex h-screen bg-background">
       <Sidebar
         onNewChatClick={() => setIsModalOpen(true)}
         chatItems={conversations}
       />
-      <div className="flex-1 flex flex-col items-end md:ml-72">
-        <div className="flex-1 w-full max-w-4xl p-4">
-          <ChatArea messages={messages} currentGroup={currentGroup} />
-        </div>
-        <div className="w-full max-w-4xl p-4">
-          <MessageInput
-            input={input}
-            setInput={setInput}
-            sendMessage={sendMessage}
-            currentGroup={currentGroup}
-          />
-        </div>
+      <div className="flex-1 flex flex-col md:ml-80">
+        <ChatArea messages={messages} currentGroup={currentGroup} />
+        <MessageInput
+          input={input}
+          setInput={setInput}
+          sendMessage={sendMessage}
+          currentGroup={currentGroup}
+        />
       </div>
       <NewChatModal
         isOpen={isModalOpen}

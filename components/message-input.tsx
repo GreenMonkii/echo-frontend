@@ -1,3 +1,5 @@
+import { Send } from "lucide-react";
+
 interface MessageInputProps {
   input: string;
   currentGroup: string | null;
@@ -12,26 +14,38 @@ export default function MessageInput({
   sendMessage,
 }: MessageInputProps) {
   return (
-    <div className="bg-secondary p-4 md:p-6 shadow-lg rounded-lg m-4 md:m-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 max-w-full md:max-w-2xl lg:max-w-3xl mx-auto">
-      <input
-        name="message"
-        type="text"
-        className="flex-1 p-3 bg-input-background border border-gray-300 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-full md:w-auto"
-        value={input}
-        autoComplete="off"
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        placeholder="Type your message..."
-      />
-      <button
-        className={`bg-primary text-secondary px-6 py-3 rounded-lg shadow-md hover:bg-accent w-full md:w-auto transition-colors duration-300 ease-in-out ${
-          input.trim() === "" ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-        onClick={sendMessage}
-        disabled={input.trim() === "" || !currentGroup}
-      >
-        Send
-      </button>
+    <div className="border-t border-border bg-white/80 backdrop-blur-sm p-6">
+      <div className="max-w-4xl mx-auto flex items-center gap-4">
+        <div className="flex-1 relative">
+          <input
+            name="message"
+            type="text"
+            className="w-full px-6 py-4 bg-white border-2 border-border hover:border-primary/30 focus:border-primary rounded-2xl focus:outline-none text-foreground placeholder:text-muted-foreground font-medium transition-all duration-200 pr-12"
+            value={input}
+            autoComplete="off"
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder={
+              currentGroup
+                ? "Type your message..."
+                : "Join a group to start chatting"
+            }
+            disabled={!currentGroup}
+          />
+        </div>
+        <button
+          className={`p-4 rounded-2xl transition-all duration-200 font-semibold ${
+            input.trim() === "" || !currentGroup
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "gradient-primary text-white hover:shadow-lg hover:scale-105 active:scale-95"
+          }`}
+          onClick={sendMessage}
+          disabled={input.trim() === "" || !currentGroup}
+          aria-label="Send message"
+        >
+          <Send size={20} />
+        </button>
+      </div>
     </div>
   );
 }

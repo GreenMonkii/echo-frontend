@@ -1,58 +1,123 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@layer utilities {
+@layer base {
   :root {
-    --background: #f6f6f6;
-    --foreground: #171717;
+    --background: #fafbfc;
+    --foreground: #1e293b;
     --primary: #28a08c;
-    --muted-primary: #d1e7e2;
+    --primary-hover: #1f7a6b;
+    --primary-light: #d1e7e2;
+    --primary-dark: #0f5449;
     --secondary: #ffffff;
-    --accent: #a4c7be;
-    --muted: #c2c2c2;
-    --muted-text: #555555;
-    --input-background: #ffffff;
+    --secondary-hover: #f8fafc;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --border: #e2e8f0;
+    --input: #ffffff;
+    --accent: #28a08c;
+    --accent-hover: #1f7a6b;
+    --accent-foreground: #ffffff;
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --success: #059669;
+    --warning: #d97706;
+    --card: #ffffff;
+    --card-foreground: #1e293b;
+    --popover: #ffffff;
+    --popover-foreground: #1e293b;
   }
 
   .dark {
-    --background: #171717;
-    --foreground: #f6f6f6;
-    --primary: #28a08c;
-    --muted-primary: #d1e7e2;
-    --secondary: #2c2c2c;
-    --accent: #4a7a72;
-    --muted: #555555;
-    --muted-text: #c2c2c2;
-    --input-background: #2c2c2c;
+    --background: #0f172a;
+    --foreground: #f1f5f9;
+    --primary: #2dd4bf;
+    --primary-hover: #22d3ee;
+    --primary-light: #134e4a;
+    --primary-dark: #0f766e;
+    --secondary: #1e293b;
+    --secondary-hover: #334155;
+    --muted: #334155;
+    --muted-foreground: #94a3b8;
+    --border: #475569;
+    --input: #1e293b;
+    --accent: #2dd4bf;
+    --accent-hover: #22d3ee;
+    --accent-foreground: #0f172a;
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --success: #059669;
+    --warning: #d97706;
+    --card: #1e293b;
+    --card-foreground: #f1f5f9;
+    --popover: #1e293b;
+    --popover-foreground: #f1f5f9;
+  }
+
+  * {
+    border-color: var(--border);
   }
 
   body {
     color: var(--foreground);
-    background: var(--background);
-    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--background);
+    font-family: var(--font-jakarta), system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
   }
 
-  input {
-    background-color: var(--input-background);
-    color: var(--foreground);
-  }
-
-  input[type='password']::-ms-reveal,
-  input[type='password']::-ms-clear {
-    display: none;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    display: none;
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 3px;
+    opacity: 0.6;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+    opacity: 1;
   }
 
   .custom-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) transparent;
   }
-}
 
-@layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Gradient effects for modern look */
+  .gradient-primary {
+    background: linear-gradient(
+      135deg,
+      var(--primary) 0%,
+      var(--primary-hover) 100%
+    );
+  }
+
+  .gradient-bg {
+    background: linear-gradient(
+      135deg,
+      var(--background) 0%,
+      var(--muted) 100%
+    );
   }
 }

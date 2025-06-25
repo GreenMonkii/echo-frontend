@@ -11,7 +11,11 @@ const SignalRContext = createContext<SignalRContextProps | undefined>(
   undefined
 );
 
-export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({
+interface SignalRProviderProps {
+  children: React.ReactNode;
+}
+
+export const SignalRProvider: React.FC<SignalRProviderProps> = ({
   children,
 }) => {
   const [currentGroup, setCurrentGroup] = useState<string | null>(null);
